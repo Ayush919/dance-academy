@@ -1,0 +1,26 @@
+/**
+ * Registers every model. Imported once by the database connection so cross-model features
+ * (populate, refs) never depend on which module happened to load first.
+ */
+import './academy'
+import './audit-log'
+import './batch'
+import './branch'
+import './class-session'
+import './closure'
+import './counter'
+import './fee-plan'
+import './instructor'
+import './program'
+import './rate-limit'
+import './room'
+import './contact-inquiry'
+import './event'
+import './media-content'
+import './content'
+import './media-asset'
+import './household'
+import './student'
+import './consent'
+import './student-document'
+import './enrollment'

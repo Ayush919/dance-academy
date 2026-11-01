@@ -1,0 +1,5 @@
+.next
+node_modules
+.data
+package-lock.json
+node_modules/next/dist/docs

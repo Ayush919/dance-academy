@@ -1,0 +1,32 @@
+# Scheduler for jobs that must run more often than Vercel's free plan allows (once a day).
+# Set repository secrets APP_URL (https://your-domain) and CRON_SECRET.
+# GitHub may delay scheduled runs by a few minutes; every job is idempotent.
+name: Scheduled jobs
+
+on:
+  schedule:
+    - cron: '30 20 * * *' # 02:00 IST daily: generate-sessions, reconcile-seats
+    - cron: '*/10 * * * *' # every 10 minutes: publish-scheduled, waitlist-offers
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run
+        default: generate-sessions
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call job endpoints
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          JOBS: ${{ github.event.inputs.job || (github.event.schedule == '*/10 * * * *' && 'publish-scheduled waitlist-offers') || 'generate-sessions reconcile-seats' }}
+        run: |
+          status=0
+          for job in $JOBS; do
+            curl --fail-with-body -sS -X POST \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              "${APP_URL}/api/cron/${job}" || status=1
+          done
+          exit $status
